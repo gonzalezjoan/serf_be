@@ -4,7 +4,7 @@ import db from './config/db.ts';
 //import type { Request, Response, Application } from 'express';
 
 //const app: Application = express();
-const PORT = 22489;
+const PORT = process.env.API_PORT || 4000;
 
 async function connectDB() {
     try {

@@ -1,11 +1,18 @@
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 
-// Sustituye 'tu_usuario', 'tu_password' y 'nombre_db' con tus datos reales de Postgres
-const db = new Sequelize('test_be', 'test_be', 't3$t_B3', {
-    host: 'localhost',
-    port: 5435, // Tu puerto personalizado
-    dialect: 'postgres',
-    logging: false, // Evita llenar la consola con logs de SQL (opcional)
-});
+dotenv.config(); // Carga las variables
+
+const db = new Sequelize(
+    process.env.DB_NAME!, 
+    process.env.DB_USER!, 
+    process.env.DB_PASSWORD, 
+    {
+        host: process.env.DB_HOST!,
+        port: Number(process.env.DB_PORT),
+        dialect: 'postgres',
+        logging: false,
+    }
+);
 
 export default db;
