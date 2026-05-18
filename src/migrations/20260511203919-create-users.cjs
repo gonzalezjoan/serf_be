@@ -14,7 +14,9 @@ module.exports = {
       email: { type: Sequelize.STRING, allowNull: false, unique: true },
       phone: { type: Sequelize.STRING, allowNull: false },
       identityCard: { type: Sequelize.STRING, allowNull: false, unique: true },
+      password: { type: Sequelize.STRING, allowNull: false }, 
       acceptTerms: { type: Sequelize.BOOLEAN, allowNull: false },
+      role: { type: Sequelize.STRING, allowNull: false, defaultValue: 'patient' },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE }
     });

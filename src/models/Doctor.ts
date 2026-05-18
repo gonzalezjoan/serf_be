@@ -3,7 +3,7 @@ import db from '../config/db.ts';
 import { hashPassword } from '../handlers/password_hash.ts';
 
 // Al extender Model, usamos estos "Generics" <...> para decirle a TS qué campos esperar
-class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+class Doctor extends Model<InferAttributes<Doctor>, InferCreationAttributes<Doctor>> {
     // Declaramos las propiedades para que TypeScript las conozca
     declare id: CreationOptional<number>; // CreationOptional indica que es autoincremental (opcional al crear)
     declare firstName: string;
@@ -11,12 +11,12 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare email: string;
     declare phone: string;
     declare identityCard: string;
-    declare acceptTerms: boolean;
+    declare doctorCode: number;
     declare password: string;
     declare role: string;
 }
 
-User.init({
+Doctor.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -48,32 +48,33 @@ User.init({
         allowNull: false,
         unique: true
     },
-    acceptTerms: {
-        type: DataTypes.BOOLEAN,
+    doctorCode: {
+        primaryKey: true,
+        type: DataTypes.STRING,
         allowNull: false
     },
     role: {
-         type: DataTypes.STRING,
-         allowNull: false,
-         defaultValue: 'patient'
-     },
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'doctor'
+    },
 }, {
     sequelize: db,
-    modelName: 'User',
+    modelName: 'Doctor',
     hooks: {
         // Se ejecuta automáticamente antes de guardar en la DB
-        beforeCreate: async (user: User) => {
-            if (user.password) {
-                user.password = await hashPassword(user.password);
+        beforeCreate: async (doctor: Doctor) => {
+            if (doctor.password) {
+                doctor.password = await hashPassword(doctor.password);
             }
         },
         // Se ejecuta si el usuario decide actualizar su contraseña después
-        beforeUpdate: async (user: User) => {
-            if (user.changed('password')) {
-                user.password = await hashPassword(user.password);
+        beforeUpdate: async (doctor: Doctor) => {
+            if (doctor.changed('password')) {
+                doctor.password = await hashPassword(doctor.password);
             }
         }
     }
 });
 
-export default User;
+export default Doctor;
