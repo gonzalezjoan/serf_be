@@ -13,7 +13,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare identityCard: string;
     declare acceptTerms: boolean;
     declare password: string;
-    declare role: string;
+    declare roleId: number; // Este campo es la FK que apunta a Roles
 }
 
 User.init({
@@ -52,11 +52,15 @@ User.init({
         type: DataTypes.BOOLEAN,
         allowNull: false
     },
-    role: {
-         type: DataTypes.STRING,
-         allowNull: false,
-         defaultValue: 'patient'
-     },
+    roleId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 3, // ID por defecto de 'patient'
+    references: {
+        model: 'Roles',
+        key: 'id'
+    }
+}
 }, {
     sequelize: db,
     modelName: 'User',

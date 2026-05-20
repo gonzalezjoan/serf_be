@@ -1,80 +1,52 @@
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from 'sequelize';
 import db from '../config/db.ts';
-import { hashPassword } from '../handlers/password_hash.ts';
+import User from './User.ts'; // Importamos el modelo de Usuarios
+import Role from './Roles.ts'; // <--- NUEVA IMPORTACIÓN: Traemos el modelo de Roles
 
-// Al extender Model, usamos estos "Generics" <...> para decirle a TS qué campos esperar
-class Doctor extends Model<InferAttributes<Doctor>, InferCreationAttributes<Doctor>> {
-    // Declaramos las propiedades para que TypeScript las conozca
-    declare id: CreationOptional<number>; // CreationOptional indica que es autoincremental (opcional al crear)
-    declare firstName: string;
-    declare lastName: string;
-    declare email: string;
-    declare phone: string;
-    declare identityCard: string;
+class DoctorProfile extends Model<InferAttributes<DoctorProfile>, InferCreationAttributes<DoctorProfile>> {
+    declare id: CreationOptional<number>;
     declare doctorCode: number;
-    declare password: string;
-    declare role: string;
+    declare userId: number; 
 }
 
-Doctor.init({
+DoctorProfile.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    firstName: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    lastName: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true 
-    },
-    phone: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    identityCard: {
-        type: DataTypes.STRING,
+    doctorCode: {
+        type: DataTypes.INTEGER,
         allowNull: false,
         unique: true
     },
-    doctorCode: {
-        primaryKey: true,
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    role: {
-        type: DataTypes.STRING,
+    userId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 'doctor'
-    },
-}, {
-    sequelize: db,
-    modelName: 'Doctor',
-    hooks: {
-        // Se ejecuta automáticamente antes de guardar en la DB
-        beforeCreate: async (doctor: Doctor) => {
-            if (doctor.password) {
-                doctor.password = await hashPassword(doctor.password);
-            }
-        },
-        // Se ejecuta si el usuario decide actualizar su contraseña después
-        beforeUpdate: async (doctor: Doctor) => {
-            if (doctor.changed('password')) {
-                doctor.password = await hashPassword(doctor.password);
-            }
+        references: {
+            model: 'Users',
+            key: 'id'
         }
     }
+}, {
+    sequelize: db,
+    modelName: 'DoctorProfile',
+    tableName: 'DoctorProfiles' // Forzamos el plural exacto de la migración
 });
 
-export default Doctor;
+// ====================================================
+// RELACIONES DEL SISTEMA (EL CONTRATO ENTRE TABLAS)
+// ====================================================
+
+// 1. Relación Doctor <-> User (Ya la tenías hecha y funciona excelente)
+DoctorProfile.belongsTo(User, { foreignKey: 'userId' });
+User.hasOne(DoctorProfile, { foreignKey: 'userId' });
+
+// 2. NUEVA RELACIÓN: User <-> Role (¡El eslabón perdido!)
+// Le explicamos a Sequelize que un Usuario pertenece a un Rol mediante 'roleId'
+User.belongsTo(Role, { foreignKey: 'roleId' });
+
+// Opcional pero recomendado: Un Rol tiene muchos Usuarios
+Role.hasMany(User, { foreignKey: 'roleId' });
+
+export default DoctorProfile;

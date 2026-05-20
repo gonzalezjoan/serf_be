@@ -16,7 +16,18 @@ module.exports = {
       identityCard: { type: Sequelize.STRING, allowNull: false, unique: true },
       password: { type: Sequelize.STRING, allowNull: false }, 
       acceptTerms: { type: Sequelize.BOOLEAN, allowNull: false },
-      role: { type: Sequelize.STRING, allowNull: false, defaultValue: 'patient' },
+      // CAMBIO CENTRAL: Ahora es una clave foránea nativa que apunta a la tabla Roles
+      roleId: { 
+        type: Sequelize.INTEGER, 
+        allowNull: false, 
+        defaultValue: 3, // Por defecto apunta al ID 3 ('patient')
+        references: {
+          model: 'Roles', // Nombre de la tabla física en la base de datos
+          key: 'id'       // Columna de destino
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT' // Seguridad: No permite borrar un rol si tiene usuarios activos
+      },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE }
     });
