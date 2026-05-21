@@ -1,6 +1,11 @@
-To exec BE run:
+Service postgres required
+
+To exec must run:
 
 npm i 
+
+migrations
+seeders
 
 npm run dev
 
