@@ -1,37 +1,36 @@
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from 'sequelize';
 import db from '../config/db.ts';
 
-// 1. Modificamos la interfaz de TypeScript
 class Treatment extends Model<InferAttributes<Treatment>, InferCreationAttributes<Treatment>> {
     declare id: CreationOptional<number>;
-    declare treatmentsName: string;
-    declare treatmentsDescription: string;
-    declare treatmentsCost: number;
+    declare treatmentName: string;
+    declare treatmentDescription: string;
+    declare treatmentCost: number;
 }
 
-// 2. Inicializamos el modelo mapeando la columna exacta de la migración
 Treatment.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    treatmentsName: {                    
+    treatmentName: {                    
         type: DataTypes.STRING,
         allowNull: false
     },
-    treatmentsDescription: {
+    treatmentDescription: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    treatmentsCost:{
-        type:DataTypes.INTEGER,
+    treatmentCost: {
+        type: DataTypes.DECIMAL(10, 2), // Usamos DECIMAL para costos monetarios
         allowNull: false
     }
 }, {
     sequelize: db,
     modelName: 'Treatment',
-    tableName: 'Treatments' 
+    tableName: 'Treatment', // Vinculado a la tabla de la migración
+    timestamps: true
 });
 
 export default Treatment;

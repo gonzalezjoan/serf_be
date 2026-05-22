@@ -7,6 +7,8 @@ import { authenticateToken } from '../middlewares/auth.middleware.ts';
 import validateDataProfile from '../handlers/validateDataProfile.ts';
 import registerDoctorAccount from '../controllers/registerDoctor.controller.ts';
 import { allowRoles } from '../middlewares/roles.middleware.ts';
+import { createTreatment, createInventary } from '../controllers/treatmentAndInventary.controller.ts';
+import { handleAppointmentEndpoint, updateAppointmentStatus } from '../controllers/appointment.controller.ts';
 
 const router = Router();
 
@@ -60,4 +62,27 @@ router.post('/registerDoctor',
     registerDoctorAccount
 );
 
+router.post('/createTreatment',
+    authenticateToken,
+    allowRoles('sysadmin'),
+    createTreatment
+);
+
+router.post('/createIventary',
+    authenticateToken,
+    allowRoles('sysadmin'),
+    createInventary
+);
+
+router.get('/createAppointment',
+    authenticateToken,
+    allowRoles('sysadmin', 'doctor', 'patient'),
+    handleAppointmentEndpoint
+);
+
+router.put('/updateAppointmentStatus',
+    authenticateToken,
+    allowRoles('doctor'),
+    updateAppointmentStatus
+);
 export default router;

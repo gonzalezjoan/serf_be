@@ -11,7 +11,7 @@ module.exports = {
       },
       treatmentName: { type: Sequelize.STRING, allowNull: false },
       treatmentDescription: { type: Sequelize.STRING, allowNull: false },
-      treatmentCost: { type: Sequelize.INTEGER, allowNull: false },
+      treatmentCost: { type: Sequelize.DECIMAL, allowNull: false },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
       

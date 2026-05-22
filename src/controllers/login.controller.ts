@@ -52,7 +52,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         const token = jwt.sign(
             tokenPayload,
             process.env.JWT_SECRET || 'secret_word_key',
-            { expiresIn: '5m' }
+            { expiresIn: '30m' }
         );
 
         // 6. Obtener los módulos correspondientes a su rol desde nuestra configuración

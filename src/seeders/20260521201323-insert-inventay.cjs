@@ -17,6 +17,13 @@ module.exports = {
       itemQuantity: '10',
       createdAt: new Date(),
       updatedAt: new Date()
+    },{
+      itemName: 'Arco 0.16 Aceo',
+      itemUseDescription: 'Arco para ortodoncia',
+      itemCost:'7.99',
+      itemQuantity: '10',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }], {});
   },
 //archwires

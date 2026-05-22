@@ -11,7 +11,7 @@ module.exports = {
       },
       itemName: { type: Sequelize.STRING, allowNull: false },
       itemUseDescription: { type: Sequelize.STRING, allowNull: false },
-      itemCost: { type: Sequelize.INTEGER, allowNull: false },
+      itemCost: { type: Sequelize.DECIMAL, allowNull: false },
       itemQuantity: { type: Sequelize.INTEGER, allowNull: false },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE },
