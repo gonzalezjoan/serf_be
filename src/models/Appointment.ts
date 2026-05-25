@@ -3,14 +3,15 @@ import db from '../config/db.ts';
 import User from './User.ts'; 
 import DoctorProfile from './Doctor.ts';
 import Treatment from './Tratamientos.ts';
+import AppointmentStatus from './AppointmentStatus.ts';
 
 class Appointment extends Model<InferAttributes<Appointment>, InferCreationAttributes<Appointment>> {
     declare id: CreationOptional<number>;
     declare userId: number;
     declare doctorId: number;
     declare treatmentId: number;
-    declare appointmentDate: Date; // Añadimos fecha obligatoria para el calendario
-    declare status: 'pending' | 'approved' | 'moved'; // Estado para la lógica del doctor
+    declare appointmentDate: Date;
+    declare statusId: number;
 }
 
 Appointment.init({
@@ -22,53 +23,43 @@ Appointment.init({
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        }
+        references: { model: 'Users', key: 'id' }
     },
     doctorId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'DoctorProfiles', // Alineado perfectamente con la migración
-            key: 'id'
-        }
+        references: { model: 'DoctorProfiles', key: 'id' }
     },
     treatmentId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'Treatment', // Alineado con la migración de tratamientos
-            key: 'id'
-        }
+        references: { model: 'Treatment', key: 'id' }
     },
     appointmentDate: {
         type: DataTypes.DATE,
         allowNull: false
     },
-    status: {
-        type: DataTypes.ENUM('pending', 'approved', 'moved'),
+    statusId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 'pending'
+        defaultValue: 1
     }
 }, {
     sequelize: db,
     modelName: 'Appointment',
-    tableName: 'Appointment', // En tu migración la creaste en singular 'Appointment'
+    tableName: 'Appointment',
     timestamps: true
 });
 
 // ===================================================
-// RELACIONES ASOCIATIVAS (Clave para consultas complejas)
+// RELACIONES ASOCIATIVAS LIMPIAS Y UNIFICADAS
 // ===================================================
 Appointment.belongsTo(User, { foreignKey: 'userId', as: 'patient' });
-User.hasMany(Appointment, { foreignKey: 'userId', as: 'appointments' });
-
 Appointment.belongsTo(DoctorProfile, { foreignKey: 'doctorId', as: 'doctor' });
-DoctorProfile.hasMany(Appointment, { foreignKey: 'doctorId', as: 'appointments' });
-
 Appointment.belongsTo(Treatment, { foreignKey: 'treatmentId', as: 'treatment' });
-Treatment.hasMany(Appointment, { foreignKey: 'treatmentId', as: 'appointments' });
+
+// Asociación blindada para el arranque
+Appointment.belongsTo(AppointmentStatus, { foreignKey: 'statusId', as: 'currentStatus', constraints: false });
+AppointmentStatus.hasMany(Appointment, { foreignKey: 'statusId', as: 'appointments', constraints: false });
 
 export default Appointment;

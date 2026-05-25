@@ -13,32 +13,37 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Users', // Nombre de la tabla destino
-          key: 'id'       // Columna de la tabla destino
-        },
-        onUpdate: 'CASCADE', // Si el ID del usuario cambia, aquí también cambia
-        onDelete: 'CASCADE'  // Si el usuario se borra, su perfil de doctor se borra automáticamente
+        references: { model: 'Users', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       doctorId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'DoctorProfiles', // Nombre de la tabla destino
-          key: 'id'       // Columna de la tabla destino
-        },
-        onUpdate: 'CASCADE', // Si el ID del doctor cambia, aquí también cambia
+        references: { model: 'DoctorProfiles', key: 'id' },
+        onUpdate: 'CASCADE',
         onDelete: 'CASCADE'  
       },
       treatmentId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Treatment', // Nombre de la tabla destino
-          key: 'id'       // Columna de la tabla destino
+        references: { model: 'Treatment', key: 'id' }, // Ajustado al modelo singular físico de Postgres
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      appointmentDate: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      statusId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { 
+          model: 'AppointmentStatus',
+          key: 'id' 
         },
-        onUpdate: 'CASCADE', // Si el ID del usuario cambia, aquí también cambia
-        onDelete: 'CASCADE'  // Si el usuario se borra, su perfil de doctor se borra automáticamente
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
       },
       createdAt: { allowNull: false, type: Sequelize.DATE },
       updatedAt: { allowNull: false, type: Sequelize.DATE }

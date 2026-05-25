@@ -96,41 +96,46 @@ export const handleAppointmentEndpoint = async (req: Request, res: Response): Pr
 // =====================================================================
 export const updateAppointmentStatus = async (req: Request, res: Response): Promise<any> => {
     try {
-        const { appointmentId, status, newDate } = req.body; // status: 'approved' o 'moved'
+        const { appointmentId, statusId, newDate } = req.body; // Postman enviará statusId: 2 o 3
         
-        const appointment = await Appointment.findByPk(appointmentId, {
-            include: [{ model: User, as: 'patient', attributes: ['firstName', 'email'] }]
-        });
+        console.log(`--> Intentando actualizar Cita ID: ${appointmentId} a statusId: ${statusId}`);
+
+        const appointment = await Appointment.findByPk(appointmentId);
 
         if (!appointment) {
             return res.status(404).json({ msg: "Cita no encontrada" });
         }
 
-        if (status === 'approved') {
-            appointment.status = 'approved';
+        // CORRECCIÓN LÍNEA 110 (Aprobar Cita)
+        if (Number(statusId) === 2) { 
+            appointment.statusId = 2; // <-- ASIGNACIÓN NUMÉRICA CORRECTA (Asigna el ID 2 de la tabla)
             await appointment.save();
-
-            // MOCK LOG DE CORREO ELECTRÓNICO (Simulación del requerimiento)
-            console.log(`\n📧 [EMAIL SENT] To: ${(appointment as any).patient.email}`);
-            console.log(`Estimado/a ${(appointment as any).patient.firstName}, su cita ha sido APROBADA con éxito para la fecha ${appointment.appointmentDate}.\n`);
+            
+            console.log(`\n📧 [EMAIL SENT] Notificación de aprobación enviada (StatusId: 2)\n`);
         } 
         
-        else if (status === 'moved') {
-            if (!newDate) return res.status(400).json({ msg: "Si mueve la cita, debe enviar la nueva fecha (newDate)" });
+        // CORRECCIÓN LÍNEA 121 (Mover Cita)
+        else if (Number(statusId) === 3) { 
+            if (!newDate) {
+                return res.status(400).json({ msg: "Debe enviar la nueva fecha (newDate)" });
+            }
             
-            appointment.status = 'moved';
+            appointment.statusId = 3; // <-- ASIGNACIÓN NUMÉRICA CORRECTA (Asigna el ID 3 de la tabla)
             appointment.appointmentDate = new Date(newDate);
             await appointment.save();
-
-            // MOCK LOG DE CORREO ELECTRÓNICO
-            console.log(`\n📧 [EMAIL SENT] To: ${(appointment as any).patient.email}`);
-            console.log(`Estimado/a ${(appointment as any).patient.firstName}, su cita ha sido REAGENDADA. Nueva fecha asignada: ${newDate}.\n`);
+            
+            console.log(`\n📧 [EMAIL SENT] Notificación de cambio de fecha enviada (StatusId: 3)\n`);
+        } else {
+            return res.status(400).json({ msg: "El statusId proporcionado no es válido para esta operación (Debe ser 2 o 3)" });
         }
 
-        return res.status(200).json({ msg: `Cita actualizada a estado: ${status} y notificación enviada.`, data: appointment });
+        return res.status(200).json({ 
+            msg: "Estado de la cita actualizado con éxito en la tabla relacional.", 
+            data: appointment 
+        });
 
     } catch (error: any) {
-        return res.status(500).json({ msg: "Error al gestionar la cita", error: error.message });
+        return res.status(500).json({ msg: "Error al actualizar la cita", error: error.message });
     }
 };
 
@@ -141,4 +146,30 @@ const queryParamsExtractor = (req: Request) => {
         year: req.query.year as string,
         month: req.query.month as string
     };
+};
+
+
+// =====================================================================
+// CONTROLADOR EXCLUSIVO PARA CREAR CITA
+// =====================================================================
+export const createNewAppointment = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const { userId, doctorId, treatmentId, appointmentDate } = req.body;
+
+        const newAppointment = await Appointment.create({
+            userId,
+            doctorId,
+            treatmentId,
+            appointmentDate,
+            statusId: 1 // Forzamos que nazca con el ID 1 física ('pending')
+        });
+
+        return res.status(201).json({
+            msg: "Cita solicitada exitosamente bajo control de llave foránea.",
+            data: newAppointment
+        })
+        
+    } catch (error: any) {
+        return res.status(500).json({ msg: "Error al registrar la cita", error: error.message });
+    }
 };

@@ -8,7 +8,7 @@ import validateDataProfile from '../handlers/validateDataProfile.ts';
 import registerDoctorAccount from '../controllers/registerDoctor.controller.ts';
 import { allowRoles } from '../middlewares/roles.middleware.ts';
 import { createTreatment, createInventary } from '../controllers/treatmentAndInventary.controller.ts';
-import { handleAppointmentEndpoint, updateAppointmentStatus } from '../controllers/appointment.controller.ts';
+import { createNewAppointment, handleAppointmentEndpoint, updateAppointmentStatus, } from '../controllers/appointment.controller.ts';
 
 const router = Router();
 
@@ -74,7 +74,14 @@ router.post('/createIventary',
     createInventary
 );
 
-router.get('/createAppointment',
+router.post('/createAppointment',
+    authenticateToken,
+    allowRoles('sysadmin', 'doctor', 'patient'),
+    createNewAppointment
+);
+
+// RUTA PARA CONSULTAR DISPONIBILIDAD / VER CITAS (GET)
+router.get('/reviewAppointment',
     authenticateToken,
     allowRoles('sysadmin', 'doctor', 'patient'),
     handleAppointmentEndpoint
